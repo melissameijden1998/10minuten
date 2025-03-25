@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>10 Minuten Stilte Timer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: #999ADA;
+            padding: 20px;
+            color: white;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            margin: 0;
+        }
+        h1 {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        #timer {
+            font-size: 4em;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        button {
+            background: white;
+            color: #999ADA;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>10 minuten in stilte</h1>
+    <div id="timer">10:00</div>
+    <button onclick="startTimer()">Start Timer</button>
+
+    <script>
+        function playCompletionSound() {
+            // Eenvoudige rustgevende toon (Web Audio API)
+            const context = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = context.createOscillator();
+            oscillator.type = "sine";
+            oscillator.frequency.value = 440; // A4-noot (kalmerend)
+            
+            const gain = context.createGain();
+            gain.gain.value = 0.3; // Zachter geluid
+            
+            oscillator.connect(gain);
+            gain.connect(context.destination);
+            
+            oscillator.start();
+            oscillator.stop(context.currentTime + 1.5); // 1.5 seconden
+        }
+
+        function startTimer() {
+            let timeLeft = 600; // 10 minuten in seconden
+            const timerElement = document.getElementById('timer');
+            const button = document.querySelector('button');
+            
+            button.disabled = true; // Zorgt dat je niet per ongeluk dubbel klikt
+            button.textContent = "Bezig...";
+            
+            const interval = setInterval(() => {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                    timerElement.textContent = "Klaar!";
+                    button.textContent = "Opnieuw";
+                    button.disabled = false;
+                    playCompletionSound(); // Speel geluid af
+                } else {
+                    timeLeft--;
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
